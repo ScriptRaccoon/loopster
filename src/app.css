@@ -1,0 +1,43 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	background-color: black;
+	font-family: Arial, Helvetica, sans-serif;
+	color: white;
+}
+
+button {
+	font: inherit;
+	color: inherit;
+	background: none;
+	border: none;
+
+	&:not(:disabled) {
+		cursor: pointer;
+	}
+}
+
+@media (hover: hover) {
+	button:focus-visible {
+		outline: 1px solid white;
+	}
+}
+
+.btn {
+	background-color: #444;
+	padding: 0.4rem 0.8rem;
+	border-radius: 0.25rem;
+}
+
+h1,
+h2 {
+	font-weight: 500;
+}
+
+p {
+	margin-block: 1rem;
+}
