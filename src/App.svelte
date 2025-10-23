@@ -242,7 +242,7 @@
 </script>
 
 <header>
-	<h1>Loopster</h1>
+	<h1>Loopster &ndash; <span class="config">{move_size}/{square_size}</span></h1>
 </header>
 
 <div class="wrapper">
@@ -321,6 +321,10 @@
 	header {
 		margin-block: 2rem;
 		text-align: center;
+	}
+
+	.config {
+		letter-spacing: 4px;
 	}
 
 	.wrapper {
