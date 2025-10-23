@@ -6,7 +6,7 @@
 		move_size: number
 		animating: boolean
 		piece_grid: Piece[][]
-		board_element: HTMLDivElement | null
+		animation_speed: number
 		handle_click: (y: number, x: number, shiftkey: boolean) => void
 	}
 
@@ -15,12 +15,17 @@
 		move_size,
 		animating,
 		piece_grid,
-		board_element = $bindable(),
+		animation_speed,
 		handle_click,
 	}: Props = $props()
 </script>
 
-<div class="board" style:--size={board_size} bind:this={board_element} class:animating>
+<div
+	class="board"
+	style:--size={board_size}
+	style:--transition-duration="{animation_speed}ms"
+	class:animating
+>
 	{#each { length: board_size } as _, y}
 		{#each { length: board_size } as _, x}
 			{@const piece = piece_grid[y][x]}
@@ -61,7 +66,7 @@
 	}
 
 	.board.animating .piece {
-		transition: transform 180ms ease-in-out;
+		transition: transform var(--transition-duration, 0ms) ease-in-out;
 		transform: translate(
 			calc(var(--dx) * (100% + var(--margin) * 2)),
 			calc(var(--dy) * (100% + var(--margin) * 2))

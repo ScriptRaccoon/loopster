@@ -5,6 +5,7 @@
 	import Progress from './components/Progress.svelte'
 	import Settings from './components/Settings.svelte'
 	import Toast, { send_toast } from './components/Toast.svelte'
+	import { AsyncQueue } from './queue'
 	import type { Move, Piece } from './types'
 	import { rand_int } from './utils'
 
@@ -14,8 +15,8 @@
 	let piece_grid = $state<Piece[][]>(get_initial_grid())
 
 	let move_history: Move[] = []
-	let board_element = $state<HTMLDivElement | null>(null)
 
+	const ANIMATION_SPEED = 180
 	let animating = $state(false)
 	let user_is_solving = false
 
@@ -54,15 +55,17 @@
 		Math.floor(100 * (solved_coordinates.length / board_size ** 2)),
 	)
 
-	async function handle_click(y: number, x: number, shiftkey: boolean) {
-		if (animating) return
-		if (Math.max(x, y) > board_size - move_size) return
-
-		if (shiftkey) {
-			await move_pieces_anticlockwise(y, x)
+	const move_queue = new AsyncQueue<Move>(async (move) => {
+		if (move.clockwise) {
+			await move_pieces_clockwise(move.y, move.x)
 		} else {
-			await move_pieces_clockwise(y, x)
+			await move_pieces_anticlockwise(move.y, move.x)
 		}
+	})
+
+	async function handle_click(y: number, x: number, shiftkey: boolean) {
+		if (Math.max(x, y) > board_size - move_size) return
+		move_queue.enqueue({ y, x, clockwise: !shiftkey })
 	}
 
 	async function move_pieces_clockwise(
@@ -152,19 +155,14 @@
 	}
 
 	async function animate_move(updates: [number, number, Piece][]) {
-		if (!board_element) return
 		animating = true
 		return new Promise<void>((resolve) => {
-			board_element!.addEventListener(
-				'transitionend',
-				() => {
-					animating = false
-					execute_move(updates)
-					check_solved()
-					resolve()
-				},
-				{ once: true },
-			)
+			setTimeout(() => {
+				animating = false
+				execute_move(updates)
+				check_solved()
+				resolve()
+			}, ANIMATION_SPEED)
 		})
 	}
 
@@ -275,7 +273,7 @@
 		{move_size}
 		{animating}
 		{piece_grid}
-		bind:board_element
+		animation_speed={ANIMATION_SPEED}
 		{handle_click}
 	/>
 
