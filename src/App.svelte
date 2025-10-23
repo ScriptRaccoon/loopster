@@ -53,18 +53,18 @@
 		Math.floor(100 * (solved_coordinates.length / board_size ** 2)),
 	)
 
-	function handle_click(y: number, x: number, shiftkey: boolean) {
+	async function handle_click(y: number, x: number, shiftkey: boolean) {
 		if (animating) return
 		if (Math.max(x, y) > board_size - move_size) return
 
 		if (shiftkey) {
-			move_pieces_anticlockwise(y, x)
+			await move_pieces_anticlockwise(y, x)
 		} else {
-			move_pieces_clockwise(y, x)
+			await move_pieces_clockwise(y, x)
 		}
 	}
 
-	function move_pieces_clockwise(
+	async function move_pieces_clockwise(
 		y: number,
 		x: number,
 		options = {
@@ -99,7 +99,7 @@
 		}
 
 		if (options.animated) {
-			animate_move(updates)
+			await animate_move(updates)
 		} else {
 			execute_move(updates)
 		}
@@ -107,7 +107,7 @@
 		if (options.record_move) move_history.push([y, x, true])
 	}
 
-	function move_pieces_anticlockwise(
+	async function move_pieces_anticlockwise(
 		y: number,
 		x: number,
 		options = {
@@ -142,7 +142,7 @@
 		}
 
 		if (options.animated) {
-			animate_move(updates)
+			await animate_move(updates)
 		} else {
 			execute_move(updates)
 		}
@@ -150,17 +150,21 @@
 		if (options.record_move) move_history.push([y, x, false])
 	}
 
-	function animate_move(updates: [number, number, Piece][]) {
+	async function animate_move(updates: [number, number, Piece][]) {
+		if (!board_element) return
 		animating = true
-		board_element?.addEventListener(
-			'transitionend',
-			() => {
-				animating = false
-				execute_move(updates)
-				check_solved()
-			},
-			{ once: true },
-		)
+		return new Promise<void>((resolve) => {
+			board_element!.addEventListener(
+				'transitionend',
+				() => {
+					animating = false
+					execute_move(updates)
+					check_solved()
+					resolve()
+				},
+				{ once: true },
+			)
+		})
 	}
 
 	function execute_move(updates: [number, number, Piece][]) {
@@ -202,7 +206,7 @@
 		user_is_solving = false
 	}
 
-	function scramble_pieces(move_count = 100 * board_size) {
+	async function scramble_pieces(move_count = 100 * board_size) {
 		if (animating) return
 
 		reset_pieces()
@@ -213,16 +217,19 @@
 			const clockwise = Math.random() < 0.5
 
 			if (clockwise) {
-				move_pieces_clockwise(y, x, { record_move: false, animated: false })
+				await move_pieces_clockwise(y, x, { record_move: false, animated: false })
 			} else {
-				move_pieces_anticlockwise(y, x, { record_move: false, animated: false })
+				await move_pieces_anticlockwise(y, x, {
+					record_move: false,
+					animated: false,
+				})
 			}
 		}
 
 		user_is_solving = true
 	}
 
-	function undo_move() {
+	async function undo_move() {
 		if (animating) return
 
 		const last_move = move_history.pop()
@@ -231,12 +238,12 @@
 		const [y, x, clockwise] = last_move
 
 		if (clockwise) {
-			move_pieces_anticlockwise(y, x, {
+			await move_pieces_anticlockwise(y, x, {
 				record_move: false,
 				animated: true,
 			})
 		} else {
-			move_pieces_clockwise(y, x, {
+			await move_pieces_clockwise(y, x, {
 				record_move: false,
 				animated: true,
 			})
