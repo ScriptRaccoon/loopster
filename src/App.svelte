@@ -2,7 +2,7 @@
 	import { interval, rand_int } from './utils'
 
 	let square_size = $state(7)
-	let move_size = $state(2)
+	let move_size = $state(3)
 
 	type Piece = {
 		readonly id: string
@@ -55,7 +55,7 @@
 	)
 
 	function is_clickble(y: number, x: number) {
-		return Math.max(x, y) <= square_size - move_size - 1
+		return Math.max(x, y) <= square_size - move_size
 	}
 
 	function handle_click(y: number, x: number, shiftkey: boolean) {
@@ -79,25 +79,25 @@
 	) {
 		const updates: [number, number, Piece][] = []
 
-		for (let u = x; u < x + move_size; u++) {
+		for (let u = x; u < x + move_size - 1; u++) {
 			const piece = piece_grid[y][u]
 			piece.dx = 1
 			updates.push([y, u, piece])
 		}
 
-		for (let v = y; v < y + move_size; v++) {
-			const piece = piece_grid[v][x + move_size]
+		for (let v = y; v < y + move_size - 1; v++) {
+			const piece = piece_grid[v][x + move_size - 1]
 			piece.dy = 1
-			updates.push([v, x + move_size, piece])
+			updates.push([v, x + move_size - 1, piece])
 		}
 
-		for (let u = x + move_size; u > x; u--) {
-			const piece = piece_grid[y + move_size][u]
+		for (let u = x + move_size - 1; u > x; u--) {
+			const piece = piece_grid[y + move_size - 1][u]
 			piece.dx = -1
-			updates.push([y + move_size, u, piece])
+			updates.push([y + move_size - 1, u, piece])
 		}
 
-		for (let v = y + move_size; v > y; v--) {
+		for (let v = y + move_size - 1; v > y; v--) {
 			const piece = piece_grid[v][x]
 			piece.dy = -1
 			updates.push([v, x, piece])
@@ -122,25 +122,25 @@
 	) {
 		const updates: [number, number, Piece][] = []
 
-		for (let u = x + 1; u <= x + move_size; u++) {
+		for (let u = x + 1; u <= x + move_size - 1; u++) {
 			const piece = piece_grid[y][u]
 			piece.dx = -1
 			updates.push([y, u, piece])
 		}
 
-		for (let v = y + 1; v <= y + move_size; v++) {
-			const piece = piece_grid[v][x + move_size]
+		for (let v = y + 1; v <= y + move_size - 1; v++) {
+			const piece = piece_grid[v][x + move_size - 1]
 			piece.dy = -1
-			updates.push([v, x + move_size, piece])
+			updates.push([v, x + move_size - 1, piece])
 		}
 
-		for (let u = x + move_size - 1; u >= x; u--) {
-			const piece = piece_grid[y + move_size][u]
+		for (let u = x + move_size - 2; u >= x; u--) {
+			const piece = piece_grid[y + move_size - 1][u]
 			piece.dx = 1
-			updates.push([y + move_size, u, piece])
+			updates.push([y + move_size - 1, u, piece])
 		}
 
-		for (let v = y + move_size - 1; v >= y; v--) {
+		for (let v = y + move_size - 2; v >= y; v--) {
 			const piece = piece_grid[v][x]
 			piece.dy = 1
 			updates.push([v, x, piece])
@@ -200,8 +200,8 @@
 		reset_pieces()
 
 		for (let i = 0; i < move_count; i++) {
-			const y = rand_int(0, square_size - move_size)
-			const x = rand_int(0, square_size - move_size)
+			const y = rand_int(0, square_size - move_size + 1)
+			const x = rand_int(0, square_size - move_size - 1)
 			const clockwise = Math.random() < 0.5
 
 			if (clockwise) {
@@ -236,7 +236,7 @@
 	function change_size(e: Event & { currentTarget: HTMLSelectElement }) {
 		if (animating) return
 		square_size = Number(e.currentTarget.value)
-		move_size = Math.min(move_size, square_size - 1)
+		move_size = Math.min(move_size, square_size)
 		piece_grid = get_initial_grid()
 	}
 </script>
@@ -295,7 +295,7 @@
 				onchange={reset_pieces}
 				disabled={animating}
 			>
-				{#each interval(1, square_size - 1) as val}
+				{#each interval(2, square_size) as val}
 					<option value={val}>{val}</option>
 				{/each}
 			</select>
