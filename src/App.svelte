@@ -8,12 +8,12 @@
 	import type { Piece } from './types'
 	import { rand_int } from './utils'
 
-	let square_size = $state(7)
+	let board_size = $state(7)
 	let move_size = $state(3)
 
 	let piece_grid = $state<Piece[][]>(get_initial_grid())
 	let move_history: [number, number, boolean][] = []
-	let square_element = $state<HTMLDivElement | null>(null)
+	let board_element = $state<HTMLDivElement | null>(null)
 
 	let animating = $state(false)
 	let user_is_solving = false
@@ -21,13 +21,13 @@
 	function get_initial_grid() {
 		const grid: Piece[][] = []
 
-		for (let y = 0; y < square_size; y++) {
+		for (let y = 0; y < board_size; y++) {
 			grid[y] ??= []
-			for (let x = 0; x < square_size; x++) {
+			for (let x = 0; x < board_size; x++) {
 				const id = crypto.randomUUID()
-				const index = y * square_size + x + 1
+				const index = y * board_size + x + 1
 				const label = index.toString()
-				const hue = ((index - 1) / square_size ** 2) * 360
+				const hue = ((index - 1) / board_size ** 2) * 360
 				const dx = 0
 				const dy = 0
 				grid[y][x] = { id, original_x: x, original_y: y, label, hue, dx, dy }
@@ -39,8 +39,8 @@
 
 	let solved_coordinates = $derived.by(() => {
 		const coords = []
-		for (let y = 0; y < square_size; y++) {
-			for (let x = 0; x < square_size; x++) {
+		for (let y = 0; y < board_size; y++) {
+			for (let x = 0; x < board_size; x++) {
 				const piece = piece_grid[y][x]
 				const is_solved = piece.original_x === x && piece.original_y === y
 				if (is_solved) coords.push([y, x])
@@ -50,12 +50,12 @@
 	})
 
 	let percentage_solved_pieces = $derived(
-		Math.floor(100 * (solved_coordinates.length / square_size ** 2)),
+		Math.floor(100 * (solved_coordinates.length / board_size ** 2)),
 	)
 
 	function handle_click(y: number, x: number, shiftkey: boolean) {
 		if (animating) return
-		if (Math.max(x, y) > square_size - move_size) return
+		if (Math.max(x, y) > board_size - move_size) return
 
 		if (shiftkey) {
 			move_pieces_anticlockwise(y, x)
@@ -152,7 +152,7 @@
 
 	function animate_move(updates: [number, number, Piece][]) {
 		animating = true
-		square_element?.addEventListener(
+		board_element?.addEventListener(
 			'transitionend',
 			() => {
 				animating = false
@@ -172,7 +172,7 @@
 	}
 
 	function check_solved() {
-		const is_solved = solved_coordinates.length === square_size ** 2
+		const is_solved = solved_coordinates.length === board_size ** 2
 		if (is_solved && user_is_solving) {
 			send_toast({
 				title: 'Congratulations! You solved the puzzle! 🎉',
@@ -185,8 +185,8 @@
 	function reset_pieces() {
 		let updates: [number, number, Piece][] = []
 
-		for (let y = 0; y < square_size; y++) {
-			for (let x = 0; x < square_size; x++) {
+		for (let y = 0; y < board_size; y++) {
+			for (let x = 0; x < board_size; x++) {
 				const piece = piece_grid[y][x]
 				updates.push([piece.original_y, piece.original_x, piece])
 			}
@@ -202,14 +202,14 @@
 		user_is_solving = false
 	}
 
-	function scramble_pieces(move_count = 100 * square_size) {
+	function scramble_pieces(move_count = 100 * board_size) {
 		if (animating) return
 
 		reset_pieces()
 
 		for (let i = 0; i < move_count; i++) {
-			const y = rand_int(0, square_size - move_size + 1)
-			const x = rand_int(0, square_size - move_size + 1)
+			const y = rand_int(0, board_size - move_size + 1)
+			const x = rand_int(0, board_size - move_size + 1)
 			const clockwise = Math.random() < 0.5
 
 			if (clockwise) {
@@ -243,10 +243,10 @@
 		}
 	}
 
-	function change_square_size(new_size: number) {
+	function change_board_size(new_size: number) {
 		if (animating) return
-		square_size = new_size
-		move_size = Math.min(move_size, square_size)
+		board_size = new_size
+		move_size = Math.min(move_size, board_size)
 		piece_grid = get_initial_grid()
 		move_history = []
 		user_is_solving = false
@@ -257,17 +257,17 @@
 	}
 </script>
 
-<Header config="{move_size}/{square_size}" />
+<Header config="{move_size}/{board_size}" />
 
 <div class="wrapper">
 	<Progress percentage={percentage_solved_pieces} />
 
 	<Board
-		{square_size}
+		{board_size}
 		{move_size}
 		{animating}
 		{piece_grid}
-		bind:square_element
+		bind:board_element
 		{handle_click}
 	/>
 
@@ -275,9 +275,9 @@
 
 	<Settings
 		bind:move_size
-		bind:square_size
+		bind:board_size
 		{change_move_size}
-		{change_square_size}
+		{change_board_size}
 		{animating}
 	/>
 </div>

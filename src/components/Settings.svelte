@@ -3,17 +3,17 @@
 
 	type Props = {
 		move_size: number
-		square_size: number
+		board_size: number
 		change_move_size: () => void
-		change_square_size: (new_size: number) => void
+		change_board_size: (new_size: number) => void
 		animating: boolean
 	}
 
 	let {
 		move_size = $bindable(),
-		square_size = $bindable(),
+		board_size = $bindable(),
 		change_move_size,
-		change_square_size,
+		change_board_size,
 		animating,
 	}: Props = $props()
 </script>
@@ -31,18 +31,18 @@
 			onchange={change_move_size}
 			disabled={animating}
 		>
-			{#each interval(2, square_size) as val}
+			{#each interval(2, board_size) as val}
 				<option value={val}>{val}</option>
 			{/each}
 		</select>
 	</div>
 
 	<div class="setting">
-		<label for="square-size-select">Board Size</label>
+		<label for="board-size-select">Board Size</label>
 		<select
-			id="square-size-select"
-			value={square_size}
-			onchange={(e) => change_square_size(parseInt(e.currentTarget.value))}
+			id="board-size-select"
+			value={board_size}
+			onchange={(e) => change_board_size(parseInt(e.currentTarget.value))}
 			disabled={animating}
 		>
 			{#each interval(2, 10) as val}

@@ -2,27 +2,27 @@
 	import type { Piece } from '../types'
 
 	type Props = {
-		square_size: number
+		board_size: number
 		move_size: number
 		animating: boolean
 		piece_grid: Piece[][]
-		square_element: HTMLDivElement | null
+		board_element: HTMLDivElement | null
 		handle_click: (y: number, x: number, shiftkey: boolean) => void
 	}
 
 	let {
-		square_size,
+		board_size,
 		move_size,
 		animating,
 		piece_grid,
-		square_element = $bindable(),
+		board_element = $bindable(),
 		handle_click,
 	}: Props = $props()
 </script>
 
-<div class="board" style:--size={square_size} bind:this={square_element} class:animating>
-	{#each { length: square_size } as _, y}
-		{#each { length: square_size } as _, x}
+<div class="board" style:--size={board_size} bind:this={board_element} class:animating>
+	{#each { length: board_size } as _, y}
+		{#each { length: board_size } as _, x}
 			{@const piece = piece_grid[y][x]}
 			<button
 				class="piece"
@@ -30,7 +30,7 @@
 				style:--hue={piece.hue}
 				style:--dx={piece.dx}
 				style:--dy={piece.dy}
-				disabled={Math.max(x, y) > square_size - move_size}
+				disabled={Math.max(x, y) > board_size - move_size}
 			>
 				{piece.label}
 			</button>
