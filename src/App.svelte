@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Toast, { send_toast } from './Toast.svelte'
 	import { interval, rand_int } from './utils'
 
 	let square_size = $state(7)
@@ -18,6 +19,7 @@
 	let move_history: [number, number, boolean][] = []
 	let square_element = $state<HTMLDivElement | null>(null)
 	let animating = $state(false)
+	let user_is_solving = false
 
 	function get_initial_grid() {
 		const grid: Piece[][] = []
@@ -162,6 +164,7 @@
 			() => {
 				animating = false
 				execute_move(updates)
+				check_solved()
 			},
 			{ once: true },
 		)
@@ -172,6 +175,17 @@
 			piece_grid[v + piece.dy][u + piece.dx] = piece
 			piece.dx = 0
 			piece.dy = 0
+		}
+	}
+
+	function check_solved() {
+		const is_solved = solved_coordinates.length === square_size ** 2
+		if (is_solved && user_is_solving) {
+			send_toast({
+				title: 'Congratulations! You solved the puzzle! 🎉',
+				variant: 'success',
+			})
+			user_is_solving = false
 		}
 	}
 
@@ -192,6 +206,7 @@
 		}
 
 		move_history = []
+		user_is_solving = false
 	}
 
 	function scramble_pieces(move_count = 100 * square_size) {
@@ -201,7 +216,7 @@
 
 		for (let i = 0; i < move_count; i++) {
 			const y = rand_int(0, square_size - move_size + 1)
-			const x = rand_int(0, square_size - move_size - 1)
+			const x = rand_int(0, square_size - move_size + 1)
 			const clockwise = Math.random() < 0.5
 
 			if (clockwise) {
@@ -210,6 +225,8 @@
 				move_pieces_anticlockwise(y, x, { record_move: false, animated: false })
 			}
 		}
+
+		user_is_solving = true
 	}
 
 	function undo_move() {
@@ -238,6 +255,8 @@
 		square_size = Number(e.currentTarget.value)
 		move_size = Math.min(move_size, square_size)
 		piece_grid = get_initial_grid()
+		move_history = []
+		user_is_solving = false
 	}
 </script>
 
@@ -316,6 +335,8 @@
 		</div>
 	</section>
 </div>
+
+<Toast position="bottom-center" />
 
 <style>
 	header {
