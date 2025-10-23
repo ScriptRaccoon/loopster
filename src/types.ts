@@ -7,3 +7,9 @@ export type Piece = {
 	dx: number
 	dy: number
 }
+
+export type Move = {
+	y: number
+	x: number
+	clockwise: boolean
+}

@@ -5,14 +5,15 @@
 	import Progress from './components/Progress.svelte'
 	import Settings from './components/Settings.svelte'
 	import Toast, { send_toast } from './components/Toast.svelte'
-	import type { Piece } from './types'
+	import type { Move, Piece } from './types'
 	import { rand_int } from './utils'
 
 	let board_size = $state(7)
 	let move_size = $state(3)
 
 	let piece_grid = $state<Piece[][]>(get_initial_grid())
-	let move_history: [number, number, boolean][] = []
+
+	let move_history: Move[] = []
 	let board_element = $state<HTMLDivElement | null>(null)
 
 	let animating = $state(false)
@@ -104,7 +105,7 @@
 			execute_move(updates)
 		}
 
-		if (options.record_move) move_history.push([y, x, true])
+		if (options.record_move) move_history.push({ y, x, clockwise: true })
 	}
 
 	async function move_pieces_anticlockwise(
@@ -147,7 +148,7 @@
 			execute_move(updates)
 		}
 
-		if (options.record_move) move_history.push([y, x, false])
+		if (options.record_move) move_history.push({ y, x, clockwise: false })
 	}
 
 	async function animate_move(updates: [number, number, Piece][]) {
@@ -235,7 +236,7 @@
 		const last_move = move_history.pop()
 		if (!last_move) return
 
-		const [y, x, clockwise] = last_move
+		const { y, x, clockwise } = last_move
 
 		if (clockwise) {
 			await move_pieces_anticlockwise(y, x, {
