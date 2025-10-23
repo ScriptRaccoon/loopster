@@ -1,23 +1,20 @@
 <script lang="ts">
-	import Toast, { send_toast } from './Toast.svelte'
-	import { interval, rand_int } from './utils'
+	import Board from './components/Board.svelte'
+	import Header from './components/Header.svelte'
+	import Menu from './components/Menu.svelte'
+	import Progress from './components/Progress.svelte'
+	import Settings from './components/Settings.svelte'
+	import Toast, { send_toast } from './components/Toast.svelte'
+	import type { Piece } from './types'
+	import { rand_int } from './utils'
 
 	let square_size = $state(7)
 	let move_size = $state(3)
 
-	type Piece = {
-		readonly id: string
-		readonly original_x: number
-		readonly original_y: number
-		readonly label: string
-		readonly hue: number
-		dx: number
-		dy: number
-	}
-
 	let piece_grid = $state<Piece[][]>(get_initial_grid())
 	let move_history: [number, number, boolean][] = []
 	let square_element = $state<HTMLDivElement | null>(null)
+
 	let animating = $state(false)
 	let user_is_solving = false
 
@@ -56,13 +53,9 @@
 		Math.floor(100 * (solved_coordinates.length / square_size ** 2)),
 	)
 
-	function is_clickble(y: number, x: number) {
-		return Math.max(x, y) <= square_size - move_size
-	}
-
 	function handle_click(y: number, x: number, shiftkey: boolean) {
 		if (animating) return
-		if (!is_clickble(y, x)) return
+		if (Math.max(x, y) > square_size - move_size) return
 
 		if (shiftkey) {
 			move_pieces_anticlockwise(y, x)
@@ -250,177 +243,50 @@
 		}
 	}
 
-	function change_size(e: Event & { currentTarget: HTMLSelectElement }) {
+	function change_square_size(new_size: number) {
 		if (animating) return
-		square_size = Number(e.currentTarget.value)
+		square_size = new_size
 		move_size = Math.min(move_size, square_size)
 		piece_grid = get_initial_grid()
 		move_history = []
 		user_is_solving = false
 	}
+
+	function change_move_size() {
+		reset_pieces()
+	}
 </script>
 
-<header>
-	<h1>Loopster &ndash; <span class="config">{move_size}/{square_size}</span></h1>
-</header>
+<Header config="{move_size}/{square_size}" />
 
 <div class="wrapper">
-	<div class="progress" style:--percentage={percentage_solved_pieces}>
-		<div class="bar" aria-hidden="true"></div>
-		<div class="percentage" title="Percentage of solved pieces">
-			{percentage_solved_pieces}%
-		</div>
-	</div>
+	<Progress percentage={percentage_solved_pieces} />
 
-	<div
-		class="square"
-		style:--size={square_size}
-		bind:this={square_element}
-		class:animating
-	>
-		{#each { length: square_size } as _, y}
-			{#each { length: square_size } as _, x}
-				{@const piece = piece_grid[y][x]}
-				<button
-					class="piece"
-					onclick={(e) => handle_click(y, x, e.shiftKey)}
-					style:--hue={piece.hue}
-					style:--dx={piece.dx}
-					style:--dy={piece.dy}
-					disabled={!is_clickble(y, x)}
-				>
-					{piece.label}
-				</button>
-			{/each}
-		{/each}
-	</div>
+	<Board
+		{square_size}
+		{move_size}
+		{animating}
+		{piece_grid}
+		bind:square_element
+		{handle_click}
+	/>
 
-	<menu>
-		<button class="btn" onclick={reset_pieces}>Reset</button>
-		<button class="btn" onclick={() => scramble_pieces()}>Scramble</button>
-		<button class="btn" onclick={() => undo_move()}>Undo</button>
-	</menu>
+	<Menu {reset_pieces} {scramble_pieces} {undo_move} />
 
-	<section>
-		<h2>Settings</h2>
-
-		<p>Caution: Updating these settings will reset the game.</p>
-
-		<div class="setting">
-			<label for="move-size-select">Move Size</label>
-			<select
-				id="move-size-select"
-				bind:value={move_size}
-				onchange={reset_pieces}
-				disabled={animating}
-			>
-				{#each interval(2, square_size) as val}
-					<option value={val}>{val}</option>
-				{/each}
-			</select>
-		</div>
-
-		<div class="setting">
-			<label for="board-size-select">Board Size</label>
-			<select
-				id="board-size-select"
-				value={square_size}
-				onchange={change_size}
-				disabled={animating}
-			>
-				{#each interval(2, 10) as val}
-					<option value={val}>{val}</option>
-				{/each}
-			</select>
-		</div>
-	</section>
+	<Settings
+		bind:move_size
+		bind:square_size
+		{change_move_size}
+		{change_square_size}
+		{animating}
+	/>
 </div>
 
 <Toast position="bottom-center" />
 
 <style>
-	header {
-		margin-block: 2rem;
-		text-align: center;
-	}
-
-	.config {
-		letter-spacing: 4px;
-	}
-
 	.wrapper {
 		width: min(90vw, 600px);
 		margin-inline: auto;
-	}
-
-	.progress {
-		margin-block: 1rem 0.25rem;
-		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr auto;
-		align-items: center;
-		gap: 1rem;
-
-		.bar {
-			width: calc(var(--percentage) * 1%);
-			height: 0.5rem;
-			background-color: hsl(calc(var(--percentage) * 1.2deg), 100%, 50%);
-			border-radius: 100vw;
-			transition: width 200ms ease-out;
-		}
-
-		.percentage {
-			color: #aaa;
-			font-family: monospace;
-		}
-	}
-
-	.square {
-		aspect-ratio: 1;
-		display: grid;
-		grid-template-rows: repeat(var(--size), 1fr);
-		grid-template-columns: repeat(var(--size), 1fr);
-	}
-
-	.piece {
-		background-color: hsl(var(--hue), 100%, 50%);
-		border-radius: 15%;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: min(4vw, 1.5rem);
-		font-family: monospace;
-		color: black;
-		--margin: 0.2rem;
-		margin: var(--margin);
-		user-select: none;
-	}
-
-	.square.animating .piece {
-		transition: transform 180ms ease-in-out;
-		transform: translate(
-			calc(var(--dx) * (100% + var(--margin) * 2)),
-			calc(var(--dy) * (100% + var(--margin) * 2))
-		);
-	}
-
-	menu {
-		display: flex;
-		justify-content: center;
-		gap: 1rem;
-		margin-block: 1rem;
-	}
-
-	.setting {
-		margin-block: 1rem;
-	}
-
-	select {
-		padding: 0.25rem;
-		background-color: black;
-		color: white;
-		outline: 1px solid #888;
-		opacity: 1;
-		border: none;
 	}
 </style>
