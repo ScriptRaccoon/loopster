@@ -36,6 +36,7 @@
 				style:--dx={piece.dx}
 				style:--dy={piece.dy}
 				disabled={Math.max(x, y) > board_size - move_size}
+				class:solved={piece.original_x === x && piece.original_y === y}
 			>
 				{piece.label}
 			</button>
@@ -65,6 +66,25 @@
 		font-family: monospace;
 		font-weight: bold;
 		user-select: none;
+		position: relative;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 10%;
+			right: 10%;
+			width: 10%;
+			aspect-ratio: 1;
+			border-radius: 50%;
+			background-color: transparent;
+			transition: background-color 200ms ease;
+		}
+
+		&.solved {
+			&::after {
+				background-color: var(--bg-color);
+			}
+		}
 	}
 
 	.board.animating .piece {
