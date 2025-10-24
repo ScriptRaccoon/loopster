@@ -9,7 +9,7 @@
 </script>
 
 <menu>
-	<button class="btn" onclick={reset_pieces}>Reset</button>
+	<button class="btn" onclick={() => reset_pieces()}>Reset</button>
 	<button class="btn" onclick={() => scramble_pieces()}>Scramble</button>
 	<button class="btn" onclick={() => undo_move()}>Undo</button>
 </menu>

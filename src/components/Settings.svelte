@@ -21,48 +21,79 @@
 <section>
 	<h2>Settings</h2>
 
-	<p>Caution: Updating these settings will reset the game.</p>
+	<div class="settings">
+		<div class="setting">
+			<label for="board-size-select">Board Size</label>
+			<select
+				class="select"
+				id="board-size-select"
+				value={board_size}
+				onchange={(e) => change_board_size(parseInt(e.currentTarget.value))}
+				disabled={animating}
+			>
+				{#each interval(2, 10) as val}
+					<option value={val}>{val}</option>
+				{/each}
+			</select>
+		</div>
 
-	<div class="setting">
-		<label for="move-size-select">Move Size</label>
-		<select
-			id="move-size-select"
-			bind:value={move_size}
-			onchange={change_move_size}
-			disabled={animating}
-		>
-			{#each interval(2, board_size) as val}
-				<option value={val}>{val}</option>
-			{/each}
-		</select>
+		<div class="setting">
+			<label for="move-size-select">Move Size</label>
+			<select
+				class="select"
+				id="move-size-select"
+				bind:value={move_size}
+				onchange={change_move_size}
+				disabled={animating}
+			>
+				{#each interval(2, board_size) as val}
+					<option value={val}>{val}</option>
+				{/each}
+			</select>
+		</div>
 	</div>
 
-	<div class="setting">
-		<label for="board-size-select">Board Size</label>
-		<select
-			id="board-size-select"
-			value={board_size}
-			onchange={(e) => change_board_size(parseInt(e.currentTarget.value))}
-			disabled={animating}
-		>
-			{#each interval(2, 10) as val}
-				<option value={val}>{val}</option>
-			{/each}
-		</select>
-	</div>
+	<p class="caution">Changing these settings will also reset the game.</p>
 </section>
 
 <style>
-	.setting {
+	section {
+		margin-top: 2rem;
+	}
+
+	.settings {
 		margin-block: 1rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 2rem;
+	}
+
+	.setting {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+
+		@media (hover: hover) {
+			&:has(:focus-visible) {
+				label {
+					color: var(--highlight-color);
+				}
+			}
+		}
+	}
+
+	label {
+		font-size: 0.825rem;
+		text-transform: uppercase;
 	}
 
 	select {
-		padding: 0.25rem;
-		background-color: black;
-		color: white;
-		outline: 1px solid #888;
-		opacity: 1;
-		border: none;
+		width: 5ch;
+		text-align: right;
+	}
+
+	.caution {
+		color: var(--secondary-font-color);
+		font-size: 0.875rem;
 	}
 </style>

@@ -292,7 +292,7 @@
 
 <style>
 	.wrapper {
-		width: min(90vw, 600px);
+		width: min(94vw, 600px);
 		margin-inline: auto;
 	}
 </style>

@@ -49,27 +49,29 @@
 		display: grid;
 		grid-template-rows: repeat(var(--size), 1fr);
 		grid-template-columns: repeat(var(--size), 1fr);
+		--gap: 0.25rem;
+		gap: var(--gap);
 	}
 
 	.piece {
-		background-color: hsl(var(--hue), 100%, 50%);
-		border-radius: 15%;
+		background: hsl(var(--hue), 100%, 52%);
+		border-radius: 20%;
+		aspect-ratio: 1;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		font-size: min(4vw, 1.5rem);
+		font-size: calc(0.4 * min(94vw, 600px) / var(--size));
+		color: var(--piece-text-color);
 		font-family: monospace;
-		color: black;
-		--margin: 0.2rem;
-		margin: var(--margin);
+		font-weight: bold;
 		user-select: none;
 	}
 
 	.board.animating .piece {
 		transition: transform var(--transition-duration, 0ms) ease-in-out;
 		transform: translate(
-			calc(var(--dx) * (100% + var(--margin) * 2)),
-			calc(var(--dy) * (100% + var(--margin) * 2))
+			calc(var(--dx) * (100% + var(--gap))),
+			calc(var(--dy) * (100% + var(--gap)))
 		);
 	}
 </style>
