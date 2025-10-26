@@ -68,20 +68,15 @@
 		user-select: none;
 		position: relative;
 
-		&::after {
-			content: '';
-			position: absolute;
-			top: 10%;
-			right: 10%;
-			width: 10%;
-			aspect-ratio: 1;
-			border-radius: 50%;
-			background-color: transparent;
-			transition: background-color 200ms ease;
-		}
-
 		&.solved {
 			&::after {
+				content: '';
+				position: absolute;
+				top: 10%;
+				right: 10%;
+				width: 10%;
+				aspect-ratio: 1;
+				border-radius: 50%;
 				background-color: var(--bg-color);
 			}
 		}
