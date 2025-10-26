@@ -260,7 +260,9 @@
 		user_is_solving = false
 	}
 
-	function change_move_size() {
+	function change_move_size(new_size: number) {
+		if (animating) return
+		move_size = new_size
 		reset_pieces()
 	}
 </script>
@@ -282,8 +284,8 @@
 	<Menu {reset_pieces} {scramble_pieces} {undo_move} />
 
 	<Settings
-		bind:move_size
-		bind:board_size
+		{move_size}
+		{board_size}
 		{change_move_size}
 		{change_board_size}
 		{animating}

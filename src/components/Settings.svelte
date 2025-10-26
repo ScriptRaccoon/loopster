@@ -4,18 +4,13 @@
 	type Props = {
 		move_size: number
 		board_size: number
-		change_move_size: () => void
+		change_move_size: (new_size: number) => void
 		change_board_size: (new_size: number) => void
 		animating: boolean
 	}
 
-	let {
-		move_size = $bindable(),
-		board_size = $bindable(),
-		change_move_size,
-		change_board_size,
-		animating,
-	}: Props = $props()
+	let { move_size, board_size, change_move_size, change_board_size, animating }: Props =
+		$props()
 </script>
 
 <section>
@@ -42,8 +37,8 @@
 			<select
 				class="select"
 				id="move-size-select"
-				bind:value={move_size}
-				onchange={change_move_size}
+				value={move_size}
+				onchange={(e) => change_move_size(parseInt(e.currentTarget.value))}
 				disabled={animating}
 			>
 				{#each interval(2, board_size) as val}
