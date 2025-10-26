@@ -12,6 +12,8 @@
 	let board_size = $state(7)
 	let move_size = $state(3)
 
+	let config = $derived(`${board_size}×${board_size}↻${move_size}`)
+
 	let piece_grid = $state<Piece[][]>(get_initial_grid())
 
 	let move_history: Move[] = []
@@ -263,7 +265,7 @@
 	}
 </script>
 
-<Header config="{move_size}/{board_size}" />
+<Header {config} />
 
 <div class="wrapper">
 	<Progress percentage={percentage_solved_pieces} />

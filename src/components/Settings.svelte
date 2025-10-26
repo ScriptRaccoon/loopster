@@ -38,7 +38,7 @@
 		</div>
 
 		<div class="setting">
-			<label for="move-size-select">Move Size</label>
+			<label for="move-size-select">Loop Size</label>
 			<select
 				class="select"
 				id="move-size-select"

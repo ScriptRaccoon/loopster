@@ -7,21 +7,23 @@
 </script>
 
 <header>
-	<h1>Loopster &ndash; <span class="config">{config}</span></h1>
+	<h1>Loopster</h1>
+	<div class="config">{config}</div>
 </header>
 
 <style>
 	header {
 		margin-block: 1.25rem;
+		text-align: center;
 	}
 
 	h1 {
 		font-size: 1.75rem;
-		text-align: center;
 	}
 
 	.config {
-		letter-spacing: 4px;
+		color: var(--secondary-font-color);
+		font-size: 1.25rem;
 	}
 
 	@media (min-width: 600px) {
